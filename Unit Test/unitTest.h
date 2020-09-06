@@ -38,7 +38,6 @@ class UnitTest {
     }
 };
 
-
 template <class Ret, class... Args>
 struct SingleTest {
     struct RedirectIOStream {
@@ -61,8 +60,8 @@ struct SingleTest {
         if (hiddenResult) {
             return;
         }
-        using std::cerr;
-        using std::endl;
+
+        using std::cerr, std::endl;
         if constexpr (std::tuple_size<decltype(arguments)>::value) {
             cerr << "Arguments:";
             apply([](const auto&... args) {((cerr << " "<< args), ...);}, arguments);
@@ -86,11 +85,10 @@ struct SingleTest {
         if (comment != "") {
             cerr << "Comment: " << comment << endl;
         }
-
     }
+
     bool check(const std::function<Ret(Args...)>& func) {
-        using std::cerr;
-        using std::endl;
+        using std::cerr, std::endl;
         RedirectIOStream in{std::cin, input};
         RedirectIOStream out{std::cout};
 
