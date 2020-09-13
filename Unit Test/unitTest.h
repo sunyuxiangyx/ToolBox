@@ -29,7 +29,7 @@ class UnitTest {
                 cerr << " Failed (" << i+1 << "/" << tests.size()<< ")"<<endl;
                 tests[i].resultDetail();
                 cerr << endl;
-                return;
+                // return;
             } 
         }
     }
