@@ -131,11 +131,9 @@ void TestCase<Ret, Args...>::resultDetail() const {
     }
 
     if (hiddenResult) {
-        
         cerr << "Result is hidden" << endl;
         return;
     }
-
 
     if constexpr (std::tuple_size<decltype(arguments)>::value) {
         cerr << "Arguments:";

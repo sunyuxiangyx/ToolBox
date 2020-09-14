@@ -1,6 +1,13 @@
 #include "unitTest.h"
 using namespace std;
 
+void example1();
+void example2();
+
+int main() {
+    example1();
+    example2();
+}
 
 // This function is the example to be test
 // This function is wrong
@@ -78,8 +85,4 @@ void example2(void) {
 
 
 
-int main() {
-    example1();
-    example2();
 
-}
