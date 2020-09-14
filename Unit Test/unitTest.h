@@ -9,7 +9,7 @@
 
 // Forward declaration
 template <class Ret, class... Args>
-struct SingleTest;
+struct TestCase;
 
 /**
  * Storage a function and arbitrary number of test cases
@@ -17,23 +17,23 @@ struct SingleTest;
  * @tparam Ret: Type of return value of function to be tested.
  * @tparam Args: Type of arguments of the function to be tested
  * 
- * @param functionName: The name of the function to be tested.
- * @param func: Function to be tested
- * @param tests: vector of Single Test that will be used.
+ * @param suiteName: The name of this test suite.
+ * @param func: Function to be tested.
+ * @param tests: vector of Test Case that will be used.
  * 
  */
 template <class Ret, class... Args>
-class UnitTest {
-    std::string functionName;
+class TestSuite {
+    std::string suiteName;
     std::function<Ret(Args...)> func;
-    std::vector<SingleTest<Ret, Args...>> tests;
+    std::vector<TestCase<Ret, Args...>> tests;
     public:
     /**
      * Constructor
      * @param func: Function to be tested
      * @param name: The name of function to be tested
      */
-    UnitTest(const std::function<Ret(Args...)>& func, std::string name);
+    TestSuite(const std::function<Ret(Args...)>& func, std::string name);
 
     /**
      * Run all tests and show the result
@@ -44,7 +44,7 @@ class UnitTest {
      * Add a new test for these test suit
      * @param test: New test that will be added to this test suit
      */
-    void registerNewCase(const SingleTest<Ret, Args...>& test);
+    void registerNewCase(const TestCase<Ret, Args...>& test);
 };
 
 /**
@@ -65,13 +65,18 @@ class UnitTest {
  * 
  */
 template <class Ret, class... Args>
-struct SingleTest {
-
+class TestCase {
     std::tuple<Args...> arguments;
     std::any rev, actualRev;
     std::string input, output, actualOutput, name, comment;
     bool hiddenResult = false;
 
+    public:
+    void hideResult();
+    void setArguments(std::tuple<Args...> args);
+    void setReturnValue(std::any rev);
+    void setIO(std::string input, std::string output);
+    void setNameComment(std::string name, std::string comment = "");
     void resultDetail() const;
     bool check(const std::function<Ret(Args...)>& func);
 
@@ -91,39 +96,47 @@ struct SingleTest {
 
 
 template <class Ret, class... Args>
-UnitTest<Ret, Args...>::UnitTest(const std::function<Ret(Args...)>& func, std::string name): func{func}, functionName{name} {}
+TestSuite<Ret, Args...>::TestSuite(const std::function<Ret(Args...)>& func, std::string name): func{func}, suiteName{name} {}
 
 template <class Ret, class... Args>
-void UnitTest<Ret, Args...>::runSuite() {
+void TestSuite<Ret, Args...>::runSuite() {
     using std::cerr;
     using std::endl;
-    std::cerr << "Testing " << functionName <<std::endl;
+    cerr << "Testing " << suiteName <<std::endl;
     for (int i = 0; i < tests.size(); i++) {
-        std::cerr << "Test " << tests[i].name? tests[i].name + " " : "";
         if (tests[i].check(func)) {
-            cerr << "Passed (" << i+1 << "/" << tests.size()<< ")"<<endl;
+            cerr << "Test Passed (" << i+1 << "/" << tests.size()<< ")"<<endl;
         } else {
-            cerr << "Failed (" << i+1 << "/" << tests.size()<< ")"<<endl;
+            cerr << "---------------------------------------------------------\n";
+            cerr << "Test Failed (" << i+1 << "/" << tests.size()<< ")"<<endl;
             tests[i].resultDetail();
-            cerr << endl;
+            cerr << "---------------------------------------------------------\n\n";
             // return;
         } 
     }
 }
 
 template <class Ret, class... Args>
-void UnitTest<Ret, Args...>::registerNewCase(const SingleTest<Ret, Args...>& test) {
+void TestSuite<Ret, Args...>::registerNewCase(const TestCase<Ret, Args...>& test) {
     tests.push_back(test);
 }
 
 
 template <class Ret, class... Args>
-void SingleTest<Ret, Args...>::resultDetail() const {
+void TestCase<Ret, Args...>::resultDetail() const {
+    using std::cerr, std::endl;
+
+    if (name != "") {
+        cerr << "Test Name: " << name << endl;
+    }
+
     if (hiddenResult) {
+        
+        cerr << "Result is hidden" << endl;
         return;
     }
 
-    using std::cerr, std::endl;
+
     if constexpr (std::tuple_size<decltype(arguments)>::value) {
         cerr << "Arguments:";
         apply([](const auto&... args) {((cerr << " "<< args), ...);}, arguments);
@@ -150,7 +163,7 @@ void SingleTest<Ret, Args...>::resultDetail() const {
 }
 
 template <class Ret, class... Args>
-bool SingleTest<Ret, Args...>::check(const std::function<Ret(Args...)>& func) {
+bool TestCase<Ret, Args...>::check(const std::function<Ret(Args...)>& func) {
     using std::cerr, std::endl;
     RedirectIOStream in{std::cin, input};
     RedirectIOStream out{std::cout};
@@ -165,4 +178,26 @@ bool SingleTest<Ret, Args...>::check(const std::function<Ret(Args...)>& func) {
         return actualOutput == output and std::any_cast<Ret>(rev) == std::any_cast<Ret>(actualRev);
     }
 }
+
+template <class Ret, class... Args>
+void TestCase<Ret, Args...>::hideResult() { hiddenResult = true; }
+
+template <class Ret, class... Args>
+void TestCase<Ret, Args...>::setArguments(std::tuple<Args...> args) { arguments = args; }
+
+template <class Ret, class... Args>
+void TestCase<Ret, Args...>::setReturnValue(std::any rev) { this -> rev = rev; }
+
+template <class Ret, class... Args>
+void TestCase<Ret, Args...>::setIO(std::string input, std::string output) { 
+    this -> input = input; 
+    this -> output = output;
+}
+
+template <class Ret, class... Args>
+void TestCase<Ret, Args...>::setNameComment(std::string name, std::string comment) {
+    this -> name = name;
+    this -> comment = comment;
+}
+
 #endif
