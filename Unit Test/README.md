@@ -16,5 +16,6 @@ How to use this tool?
     testSuite.registerNewCase(testCase);
 5. Run the Test Suite \
     testSuite.runSuite();
+    
 For function return void, don't use setReturnValue\
 For function with no argument, just declare as TestSuite<Return Type>
