@@ -12,6 +12,9 @@ How to use this tool?
     testCase.setIO(input, output); Set Input and Output\
     testCase.setNameComment(name, comment); Set name and comment\
     testCase.hideResult(); Hide the result if this test is failed
-
+4. Add this test case to the test Suit \
+    testSuite.registerNewCase(testCase);
+5. Run the Test Suite \
+    testSuite.runSuite();
 For function return void, don't use setReturnValue\
 For function with no argument, just declare as TestSuite<Return Type>
