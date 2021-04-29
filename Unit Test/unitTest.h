@@ -135,7 +135,7 @@ void TestCase<Ret, Args...>::resultDetail() const {
         return;
     }
 
-    if constexpr (std::tuple_size<decltype(arguments)>::value) {
+    if constexpr (std::tuple_size<decltype(arguments)>::value > 0) {
         cerr << "Arguments:";
         apply([](const auto&... args) {((cerr << " "<< args), ...);}, arguments);
         cerr << endl;
